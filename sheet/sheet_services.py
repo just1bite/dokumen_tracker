@@ -1,49 +1,85 @@
+import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from config import CREDENTIALS_FILE, SHEET_ID, SHEET_NAME
+from datetime import datetime
 
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive",
-]
-
-def get_sheet():
-    creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, scope)
+# Inisialisasi koneksi Google Sheet
+def get_sheet(sheet_name):
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds_path = os.getenv("GOOGLE_CREDENTIALS_PATH", "credentials.json")
+    creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
     client = gspread.authorize(creds)
-    sheet = client.open_by_key(SHEET_ID).worksheet(SHEET_NAME)
-    return sheet
 
-def tambah_dokumen(nama, status, catatan):
-    sheet = get_sheet()
-    data = [nama, status, "auto", catatan]
-    sheet.append_row(data)
+    sheet_id = os.getenv("SHEET_ID")
+    spreadsheet = client.open_by_key(sheet_id)
+    worksheet = spreadsheet.worksheet(sheet_name)
+    return worksheet
 
+# Ambil semua data dari Memo
+def get_all_memo_data():
+    ws = get_sheet("MEMO")
+    rows = ws.get_all_records()
+    return rows
 
-def ambil_dokumen_berdasarkan_status(status: str, exclude: bool = False):
-    sheet = get_sheet()
-    data = sheet.get_all_values()
-    if not data:
-        return []
+# Ambil semua data dari Tracker
+def get_all_tracker_data():
+    ws = get_sheet("Tracker")
+    rows = ws.get_all_records()
+    return rows
 
-    header, rows = data[0], data[1:]
-    status_index = header.index("Status") if "Status" in header else 1
+# Tambahkan baris baru ke Tracker
+def append_to_tracker(rows):
+    ws = get_sheet("Tracker")
+    ws.append_rows(rows, value_input_option="USER_ENTERED")
 
-    if exclude:
-        filtered = [row for row in rows if row[status_index].lower() != status.lower()]
+# Sinkronisasi Memo → Tracker
+def sync_memos_to_tracker():
+    memo_data = get_all_memo_data()
+    tracker_data = get_all_tracker_data()
+    existing_ids = {row['No Document'] for row in tracker_data}
+
+    new_rows = []
+    for memo in memo_data:
+        if memo['Nomor'] not in existing_ids:
+            new_rows.append([
+                memo['Nomor'],             # No Document
+                memo['Deskripsi'],         # Nama Document
+                'pending',                 # Status
+                '',                        # Note
+                '',                        # Last Updated
+                ''                         # History
+            ])
+
+    if new_rows:
+        append_to_tracker(new_rows)
+        print(f"Synced {len(new_rows)} new documents.")
     else:
-        filtered = [row for row in rows if row[status_index].lower() == status.lower()]
+        print("No new documents to sync.")
 
-    return filtered
+def get_pending_documents():
+    data = get_all_tracker_data()
+    return [row for row in data if row['Status'] != 'done']
 
-def tambah_ke_tracker(no_doc: str, nama_doc: str, status: str, note: str):
-    sheet = get_sheet(sheet_name="Tracker")
-    sheet.append_row([no_doc, nama_doc, status, note])
+def update_document_status(doc_id, new_status, note, updated_by):
+    ws = get_sheet("Tracker")
+    all_data = ws.get_all_values()
+    headers = all_data[0]
+    
+    for i, row in enumerate(all_data[1:], start=2):  # Mulai dari baris 2 (baris 1 = header)
+        if row[0] == doc_id:
+            now = datetime.now().strftime("%Y-%m-%d %H:%M")
+            note_col = headers.index("Note")
+            status_col = headers.index("Status")
+            updated_col = headers.index("Last Updated")
+            history_col = headers.index("History") if "History" in headers else -1
 
-def cek_sudah_ada(no_doc: str):
-    sheet = get_sheet(sheet_name="Tracker")
-    data = sheet.get_all_values()[1:]  # skip header
-    for row in data:
-        if row and row[0] == no_doc:
-            return True
-    return False
+            ws.update_cell(i, status_col + 1, new_status)
+            ws.update_cell(i, note_col + 1, note)
+            ws.update_cell(i, updated_col + 1, now)
 
+            if history_col != -1:
+                old_history = row[history_col] if len(row) > history_col else ""
+                new_entry = f"{new_status} by {updated_by} at {now}"
+                updated_history = f"{old_history}\n{new_entry}".strip()
+                ws.update_cell(i, history_col + 1, updated_history)
+            break

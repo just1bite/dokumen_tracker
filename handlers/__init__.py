@@ -1,6 +1,9 @@
-from .list_handler import list_done, list_pending
-from telegram.ext import Application
+from .update_handler import register_handlers as register_update_handlers
+from .list_handler import register_handlers as register_list_handlers
 
-def register_all_handlers(app: Application):
-    app.add_handler(list_done)
-    app.add_handler(list_pending)
+def register_handlers(dp):
+    register_update_handlers(dp)
+
+def register_handlers(dp):
+    register_list_handlers(dp)
+    register_update_handlers(dp)
