@@ -16,7 +16,7 @@ async def list_command_handler(message: types.Message):
         return
 
     keyboard = InlineKeyboardMarkup(row_width=1)
-    for row in rows[:20]:  # Batasi tampilan maksimal 20 dokumen
+    for row in row[:20]:  # Batasi tampilan maksimal 20 dokumen
         label = f"{row['No Document']} - {row['Nama Document']} ({row['Status']})"
         keyboard.add(
             InlineKeyboardButton(
