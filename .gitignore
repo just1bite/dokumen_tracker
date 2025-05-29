@@ -2,3 +2,4 @@ document_tracker.json
 .env
 __pycache__/
 *.pyc
+credentials.json
