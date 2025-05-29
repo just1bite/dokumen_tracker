@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher, executor, types
-from config import TELEGRAM_TOKEN
+from config import TELEGRAM_BOT_TOKEN, SHEET_ID, SHEET_NAME, CREDENTIALS_FILE
 from handlers import register_handlers
 import logging
 
