@@ -15,8 +15,9 @@ async def list_command_handler(message: types.Message):
         await message.reply("❌ Tidak ada dokumen yang sesuai filter.")
         return
 
+    data = data[:20]  # Batasi hanya 10 dokumen untuk ditampilkan
     keyboard = InlineKeyboardMarkup(row_width=1)
-    for row in row[:20]:  # Batasi tampilan maksimal 20 dokumen
+    for row in data:
         label = f"{row['No Document']} - {row['Nama Document']} ({row['Status']})"
         keyboard.add(
             InlineKeyboardButton(
