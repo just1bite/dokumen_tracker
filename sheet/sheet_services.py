@@ -33,28 +33,26 @@ def append_to_tracker(rows):
     ws.append_rows(rows, value_input_option="USER_ENTERED")
 
 # Sinkronisasi Memo → Tracker
-def sync_memos_to_tracker():
-    memo_data = get_all_memo_data()
-    tracker_data = get_all_tracker_data()
-    existing_ids = {row['No Document'] for row in tracker_data}
+def sync_memo_to_tracker():
+    memo_data = get_all_memo_data()  # ambil semua data dari Sheet Memo
 
-    new_rows = []
-    for memo in memo_data:
-        if memo['Nomor'] not in existing_ids:
-            new_rows.append([
-                memo['Nomor'],             # No Document
-                memo['Deskripsi'],         # Nama Document
-                'pending',                 # Status
-                '',                        # Note
-                '',                        # Last Updated
-                ''                         # History
-            ])
+    tracker_data = get_all_tracker_data()  # ambil semua data dari Tracker untuk pengecekan duplikat
+    existing_numbers = {row["No Document"] for row in tracker_data}
 
-    if new_rows:
-        append_to_tracker(new_rows)
-        print(f"Synced {len(new_rows)} new documents.")
-    else:
-        print("No new documents to sync.")
+    new_entries = []
+    for row in memo_data:
+        nomor = row["Nomor"]
+        if nomor not in existing_numbers and nomor.strip().endswith("/2025"):
+            new_entries.append({
+                "No Document": nomor,
+                "Nama Document": row["Deskripsi"],
+                "Status": "",
+                "Note": ""
+            })
+
+    if new_entries:
+        append_to_tracker(new_entries)
+
 
 def get_pending_documents():
     data = get_all_tracker_data()
