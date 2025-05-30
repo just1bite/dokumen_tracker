@@ -1,4 +1,4 @@
-from aiogram import bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher, executor, types
 from config import TELEGRAM_BOT_TOKEN
 from handlers import register_handlers
 from sheet.sheet_services import sync_memos_to_tracker
