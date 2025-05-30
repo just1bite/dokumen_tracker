@@ -7,10 +7,14 @@ user_state = {}
 
 async def update_command_handler(message: types.Message):
     pending_docs = get_pending_documents()
+    
     if not pending_docs:
         await message.reply("✅ Semua dokumen telah diproses.")
         return
-    
+
+    MAX_BUTTONS_PER_MESSAGE = 40
+    chunks = [pending_docs[i:i + MAX_BUTTONS_PER_MESSAGE] for i in range(0, len(pending_docs), MAX_BUTTONS_PER_MESSAGE)]
+
     for i, chunk in enumerate(chunks):
         keyboard = InlineKeyboardMarkup()
         for doc in chunk:
@@ -24,15 +28,6 @@ async def update_command_handler(message: types.Message):
             f"📋 Pilih dokumen yang ingin diupdate (Batch {i + 1}/{len(chunks)}):",
             reply_markup=keyboard
         )
-    keyboard = InlineKeyboardMarkup()
-    for doc in pending_docs:
-        btn = InlineKeyboardButton(
-            text=f"{doc['No Document']} - {doc['Nama Document']}",
-            callback_data=f"select_doc|{doc['No Document']}"
-        )
-        keyboard.add(btn)
-
-    await message.reply("📋 Pilih dokumen yang ingin diupdate:", reply_markup=keyboard)
 
 async def select_document_callback(callback: types.CallbackQuery):
     _, doc_id = callback.data.split("|")
