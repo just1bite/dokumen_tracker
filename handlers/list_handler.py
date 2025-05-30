@@ -63,9 +63,11 @@ async def list_command_handler(message: types.Message):
     args = message.get_args().strip().lower()
     data = get_all_tracker_data()
 
-    # Filter berdasarkan args
     if args and args not in ["pending", "done"]:
-        data = [row for row in data if args in row["Nama Document"].lower()]
+        data = [
+            row for row in data
+            if args in row["Nama Document"].lower() or args in row["No Document"].lower()
+        ]
         filter_name = "all"
     else:
         data = filter_data(data, args if args else "all")
