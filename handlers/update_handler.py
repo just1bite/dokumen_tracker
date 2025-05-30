@@ -10,9 +10,10 @@ async def update_command_handler(message: types.Message):
     all_docs = get_pending_documents()
 
     pending_docs = [
-        doc for doc in all_docs
-        if str(doc["No Document"]).strip()[:4].isdigit() and int(doc["No Document"][:4]) >= 2025
+    doc for doc in all_docs
+    if doc["No Document"].strip().endswith("/2025")
     ]
+
     
     if not pending_docs:
         await message.reply("✅ Semua dokumen telah diproses.")
