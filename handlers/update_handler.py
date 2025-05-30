@@ -10,7 +10,20 @@ async def update_command_handler(message: types.Message):
     if not pending_docs:
         await message.reply("✅ Semua dokumen telah diproses.")
         return
+    
+    for i, chunk in enumerate(chunks):
+        keyboard = InlineKeyboardMarkup()
+        for doc in chunk:
+            btn = InlineKeyboardButton(
+                text=f"{doc['No Document']} - {doc['Nama Document']}",
+                callback_data=f"select_doc|{doc['No Document']}"
+            )
+            keyboard.add(btn)
 
+        await message.reply(
+            f"📋 Pilih dokumen yang ingin diupdate (Batch {i + 1}/{len(chunks)}):",
+            reply_markup=keyboard
+        )
     keyboard = InlineKeyboardMarkup()
     for doc in pending_docs:
         btn = InlineKeyboardButton(
@@ -53,7 +66,7 @@ async def text_handler(message: types.Message):
     update_document_status(doc_id, status, note, username)
 
     await message.reply(f"✅ Dokumen *{doc_id}* berhasil diupdate ke *{status}*", parse_mode="Markdown")
-    user_state.pop(uid)
+    user_state.pop(uid) 
 
 def register_handlers(dp: Dispatcher):
     dp.register_message_handler(update_command_handler, commands=["update"])
