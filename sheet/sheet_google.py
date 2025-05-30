@@ -1,8 +1,6 @@
 import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime
-from sheet.sheet_services import get_all_memo_data, get_all_tracker_data, append_to_tracker
 
 # Inisialisasi koneksi Google Sheet
 def get_sheet(sheet_name):
