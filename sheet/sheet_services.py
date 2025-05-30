@@ -26,7 +26,11 @@ def sync_memos_to_tracker():
 
 def get_pending_documents():
     data = get_all_tracker_data()
-    return [row for row in data if row['Status'] != 'done']
+    return [
+        row for row in data
+        if row.get('Status', '').strip().lower() != 'done'
+    ]
+
 
 def update_document_status(doc_id, new_status, note, updated_by):
     ws = get_sheet("Tracker")
