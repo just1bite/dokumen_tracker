@@ -57,7 +57,15 @@ async def select_document_callback(callback: types.CallbackQuery):
     elif current_status == "akunting":
         available_statuses = ["done"]
 
-    # Buat tombol sesuai opsi
+    # Buat deskripsi status dokumen
+    progress_info = f"""
+📄 <b>Detail Dokumen</b>
+• No Dokumen: <code>{doc_id}</code>
+• Nama: {doc.get('Nama Document', '-')}
+• Status saat ini: <b>{current_status or 'Belum ada'}</b>
+    """.strip()
+
+    # Buat tombol untuk update status
     keyboard = InlineKeyboardMarkup(row_width=2)
     for status in available_statuses:
         keyboard.insert(
@@ -65,8 +73,9 @@ async def select_document_callback(callback: types.CallbackQuery):
         )
 
     await callback.message.edit_text(
-        f"📝 Pilih status baru untuk dokumen {doc_id} (saat ini: <b>{current_status or 'Belum ada'}</b>):",
-        reply_markup=keyboard
+        progress_info + "\n\n📝 Pilih status baru:",
+        reply_markup=keyboard,
+        parse_mode="HTML"
     )
 
 
