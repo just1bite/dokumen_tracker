@@ -18,4 +18,4 @@ async def on_startup(dispatcher):
     logging.info("🤖 Bot started and MEMO synced to Tracker.")
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    executor.start_polling(dp, skip_updates=False, on_startup=on_startup)
