@@ -39,13 +39,13 @@ async def pending_command_handler(message: types.Message):
 
 async def select_document_callback(callback: types.CallbackQuery):
     _, doc_id = callback.data.split("|")
-    doc = get_document_by_id(doc_id)
+    detail = get_document_by_id(doc_id)
 
-    if not doc:
+    if not detail:
         await callback.message.edit_text("❌ Dokumen tidak ditemukan.")
         return
 
-    current_status = doc.get("Status", "").strip().lower()
+    current_status = detail.get("Status", "").strip().lower()
     user_state[callback.from_user.id] = {"doc_id": doc_id}
 
     # Tentukan opsi berdasarkan status saat ini
@@ -57,15 +57,18 @@ async def select_document_callback(callback: types.CallbackQuery):
     elif current_status == "akunting":
         available_statuses = ["done"]
 
-    # Buat deskripsi status dokumen
+    # Format informasi dokumen
     progress_info = f"""
-📄 <b>Detail Dokumen</b>
-• No Dokumen: <code>{doc_id}</code>
-• Nama: {doc.get('Nama Document', '-')}
-• Status saat ini: <b>{current_status or 'Belum ada'}</b>
+📄 *Detail Dokumen*
+*No:* {detail['No Document']}
+*Nama:* {detail['Nama Document']}
+*Status:* `{detail['Status']}`
+*Note:* {detail.get('Note', '-') or '-'}
+*Last Updated:* {detail.get('Last Updated', '-') or '-'}
+*History:* {detail.get('History', '-') or '-'}
     """.strip()
 
-    # Buat tombol untuk update status
+    # Buat tombol status baru
     keyboard = InlineKeyboardMarkup(row_width=2)
     for status in available_statuses:
         keyboard.insert(
@@ -75,8 +78,10 @@ async def select_document_callback(callback: types.CallbackQuery):
     await callback.message.edit_text(
         progress_info + "\n\n📝 Pilih status baru:",
         reply_markup=keyboard,
-        parse_mode="HTML"
+        parse_mode="Markdown"
     )
+
+
 
 
 async def select_status_callback(callback: types.CallbackQuery):
