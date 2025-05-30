@@ -101,7 +101,7 @@ async def document_detail_callback(callback: types.CallbackQuery):
 *Status:* `{detail['Status']}`
 *Note:* {detail.get('Note', '-') or '-'}
 *Last Updated:* {detail.get('Last Updated', '-') or '-'}
-*History:* 
+*History:* {detail.get('History', '-') or '-'}
 """.strip()
 
     await callback.message.answer(message, parse_mode="Markdown")
