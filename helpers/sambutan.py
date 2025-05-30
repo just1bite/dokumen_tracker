@@ -1,3 +1,5 @@
+from aiogram import types  # gunakan ini, bukan telebot
+
 async def kirim_sambutan(message: types.Message):
     text = (
         "👋 <b>Selamat datang di Document Tracker Bot!</b>\n\n"
