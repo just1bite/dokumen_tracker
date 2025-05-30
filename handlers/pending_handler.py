@@ -6,7 +6,7 @@ from sheet.sheet_services import get_pending_documents, update_document_status, 
 # Simpan state sederhana sementara (untuk produksi sebaiknya pakai FSM)
 user_state = {}
 
-async def update_command_handler(message: types.Message):
+async def pending_command_handler(message: types.Message):
     sync_memos_to_tracker()
     all_docs = get_pending_documents()
 
@@ -93,7 +93,7 @@ async def text_handler(message: types.Message):
     user_state.pop(uid) 
 
 def register_handlers(dp: Dispatcher):
-    dp.register_message_handler(update_command_handler, commands=["update"])
+    dp.register_message_handler(pending_command_handler, commands=["pending"])
     dp.register_callback_query_handler(select_document_callback, lambda c: c.data.startswith("select_doc"))
     dp.register_callback_query_handler(select_status_callback, lambda c: c.data.startswith("select_status"))
     dp.register_message_handler(text_handler, lambda m: not m.text.startswith("/"))
