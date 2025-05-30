@@ -13,12 +13,12 @@ def sync_memos_to_tracker():
     for row in memo_data:
         nomor = row['Nomor'].strip()
         if nomor not in existing_docs and re.match(r".*/2025$", nomor):
-            new_docs.append({
-                "No Document": nomor,
-                "Nama Document": row['Deskripsi'],
-                "Status": "",
-                "Note": ""
-            })
+            new_docs.append([
+                nomor,                   # No Document
+                row['Deskripsi'],       # Nama Document
+                "",                     # Status
+                ""                      # Note
+            ])
 
     if new_docs:
         append_to_tracker(new_docs)
