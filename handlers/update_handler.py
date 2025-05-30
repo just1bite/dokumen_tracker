@@ -38,15 +38,36 @@ async def update_command_handler(message: types.Message):
 
 async def select_document_callback(callback: types.CallbackQuery):
     _, doc_id = callback.data.split("|")
+    doc = get_document_by_id(doc_id)
+
+    if not doc:
+        await callback.message.edit_text("❌ Dokumen tidak ditemukan.")
+        return
+
+    current_status = doc.get("Status", "").strip().lower()
     user_state[callback.from_user.id] = {"doc_id": doc_id}
 
+    # Tentukan opsi berdasarkan status saat ini
+    available_statuses = []
+    if current_status == "":
+        available_statuses = ["management", "akunting", "done"]
+    elif current_status == "management":
+        available_statuses = ["akunting", "done"]
+    elif current_status == "akunting":
+        available_statuses = ["done"]
+
+    # Buat tombol sesuai opsi
     keyboard = InlineKeyboardMarkup(row_width=2)
-    for status in ["management", "akunting", "done"]:
+    for status in available_statuses:
         keyboard.insert(
             InlineKeyboardButton(text=status.capitalize(), callback_data=f"select_status|{status}")
         )
 
-    await callback.message.edit_text(f"📝 Pilih status baru untuk dokumen {doc_id}:", reply_markup=keyboard)
+    await callback.message.edit_text(
+        f"📝 Pilih status baru untuk dokumen {doc_id} (saat ini: <b>{current_status or 'Belum ada'}</b>):",
+        reply_markup=keyboard
+    )
+
 
 async def select_status_callback(callback: types.CallbackQuery):
     _, status = callback.data.split("|")

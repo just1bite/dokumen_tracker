@@ -58,3 +58,9 @@ def update_document_status(doc_id, new_status, note, updated_by):
                 updated_history = f"{old_history}\n{new_entry}".strip()
                 ws.update_cell(i, history_col + 1, updated_history)
             break
+def get_document_by_id(doc_id):
+    data = get_all_tracker_data()
+    for row in data:
+        if row.get("No Document", "").strip() == doc_id.strip():
+            return row
+    return None
