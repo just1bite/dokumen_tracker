@@ -1,7 +1,9 @@
 from aiogram import Bot, Dispatcher, executor, types
 from config import TELEGRAM_BOT_TOKEN, SHEET_ID, SHEET_NAME, CREDENTIALS_FILE
 from handlers import register_handlers
+from sheet.sheet_services import sync_memos_to_tracker
 import logging
+import asyncio
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -15,8 +17,8 @@ register_handlers(dp)
 
 # Fungsi ketika bot ready
 async def on_startup(dispatcher):
-    from sheet.sheet_services import sync_memos_to_tracker
-    sync_memos_to_tracker()
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, sync_memos_to_tracker)
     logging.info("🤖 Bot started and MEMO synced to Tracker.")
 
 if __name__ == "__main__":
