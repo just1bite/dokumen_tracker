@@ -96,6 +96,7 @@ def register_handlers(dp: Dispatcher):
     dp.register_message_handler(update_command_handler, commands=["update"])
     dp.register_callback_query_handler(select_document_callback, lambda c: c.data.startswith("select_doc"))
     dp.register_callback_query_handler(select_status_callback, lambda c: c.data.startswith("select_status"))
-    dp.register_message_handler(text_handler, content_types=types.ContentTypes.TEXT)
+    dp.register_message_handler(text_handler, lambda m: not m.text.startswith("/"))
+
 
 
