@@ -1,12 +1,13 @@
 from aiogram import types, Dispatcher
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from sheet.sheet_services import get_pending_documents, update_document_status, get_document_by_id
+from sheet.sheet_services import get_pending_documents, update_document_status, get_document_by_id, sync_memos_to_tracker
 
 
 # Simpan state sederhana sementara (untuk produksi sebaiknya pakai FSM)
 user_state = {}
 
 async def update_command_handler(message: types.Message):
+    sync_memos_to_tracker()
     all_docs = get_pending_documents()
 
     pending_docs = [
