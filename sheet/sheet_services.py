@@ -1,37 +1,6 @@
-import os
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+import re
 from datetime import datetime
-from .google_sheets import get_all_memo_data, get_all_tracker_data, append_to_tracker
-
-# Inisialisasi koneksi Google Sheet
-def get_sheet(sheet_name):
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds_path = os.getenv("GOOGLE_CREDENTIALS_PATH", "credentials.json")
-    creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
-    client = gspread.authorize(creds)
-
-    sheet_id = os.getenv("SHEET_ID")
-    spreadsheet = client.open_by_key(sheet_id)
-    worksheet = spreadsheet.worksheet(sheet_name)
-    return worksheet
-
-# Ambil semua data dari Memo
-def get_all_memo_data():
-    ws = get_sheet("MEMO")
-    rows = ws.get_all_records()
-    return rows
-
-# Ambil semua data dari Tracker
-def get_all_tracker_data():
-    ws = get_sheet("Tracker")
-    rows = ws.get_all_records()
-    return rows
-
-# Tambahkan baris baru ke Tracker
-def append_to_tracker(rows):
-    ws = get_sheet("Tracker")
-    ws.append_rows(rows, value_input_option="USER_ENTERED")
+from sheet.sheet_google import get_sheet, get_all_memo_data, get_all_tracker_data, append_to_tracker
 
 # Sinkronisasi Memo → Tracker
 def sync_memos_to_tracker():
@@ -63,15 +32,18 @@ def update_document_status(doc_id, new_status, note, updated_by):
     ws = get_sheet("Tracker")
     all_data = ws.get_all_values()
     headers = all_data[0]
-    
-    for i, row in enumerate(all_data[1:], start=2):  # Mulai dari baris 2 (baris 1 = header)
-        if row[0] == doc_id:
-            now = datetime.now().strftime("%Y-%m-%d %H:%M")
-            note_col = headers.index("Note")
-            status_col = headers.index("Status")
-            updated_col = headers.index("Last Updated")
-            history_col = headers.index("History") if "History" in headers else -1
 
+    try:
+        note_col = headers.index("Note")
+        status_col = headers.index("Status")
+        updated_col = headers.index("Last Updated")
+        history_col = headers.index("History") if "History" in headers else -1
+    except ValueError as e:
+        raise Exception("❌ Kolom tidak ditemukan di header: " + str(e))
+
+    for i, row in enumerate(all_data[1:], start=2):
+        if row[0].strip() == doc_id:
+            now = datetime.now().strftime("%Y-%m-%d %H:%M")
             ws.update_cell(i, status_col + 1, new_status)
             ws.update_cell(i, note_col + 1, note)
             ws.update_cell(i, updated_col + 1, now)
