@@ -5,4 +5,4 @@ from .start_handler import register_handlers as register_start_handlers
 def register_handlers(dp):
     register_list_handlers(dp)
     register_update_handlers(dp)
-    register_start_handlers(dp)
+    register_start_handlers(dp)  # URUTANNYA PENTING, jangan tumpuk def-nya

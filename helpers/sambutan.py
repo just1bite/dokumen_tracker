@@ -1,4 +1,5 @@
-from aiogram import types  # gunakan ini, bukan telebot
+# helpers/sambutan.py
+from aiogram import types
 
 async def kirim_sambutan(message: types.Message):
     text = (

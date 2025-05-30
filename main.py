@@ -5,17 +5,13 @@ from sheet.sheet_services import sync_memos_to_tracker
 import logging
 import asyncio
 
-# Logging
 logging.basicConfig(level=logging.INFO)
 
-# Bot & Dispatcher
 bot = Bot(token=TELEGRAM_BOT_TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot)
 
-# Register all handlers
 register_handlers(dp)
 
-# Fungsi ketika bot ready
 async def on_startup(dispatcher):
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, sync_memos_to_tracker)
