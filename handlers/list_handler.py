@@ -62,6 +62,26 @@ async def list_command_handler(message: types.Message):
 
     await message.reply(title, reply_markup=keyboard, parse_mode="Markdown")
 
+async def list_page_callback(callback: types.CallbackQuery):
+    _, page_str, filter_name = callback.data.split("|")
+    page = int(page_str)
+
+    data = get_all_tracker_data()
+    filtered_data = filter_data(data, filter_name)
+
+    keyboard = build_keyboard(filtered_data, page, filter_name)
+
+    title_map = {
+        "all": "📋 Daftar *semua dokumen*:",
+        "pending": "📋 Daftar dokumen *belum selesai*:",
+        "done": "📋 Daftar dokumen *selesai*:",
+    }
+    title = title_map.get(filter_name, "📋 Daftar dokumen:")
+
+    await callback.message.edit_text(title, reply_markup=keyboard, parse_mode="Markdown")
+    await callback.answer()  # supaya loading di button hilang
+
+# callback untuk detail_doc tetap sama seperti sebelumnya, tinggal daftar di register_handlers
 async def document_detail_callback(callback: types.CallbackQuery):
     _, doc_id = callback.data.split("|")
     data = get_all_tracker_data()
@@ -82,8 +102,6 @@ async def document_detail_callback(callback: types.CallbackQuery):
 """.strip()
 
     await callback.message.answer(message, parse_mode="Markdown")
-
-# callback untuk detail_doc tetap sama seperti sebelumnya, tinggal daftar di register_handlers
 
 def register_handlers(dp: Dispatcher):
     dp.register_message_handler(list_command_handler, commands=["list"])
