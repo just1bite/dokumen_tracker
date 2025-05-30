@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher, executor, types
-from config import TELEGRAM_BOT_TOKEN, SHEET_ID, SHEET_NAME, CREDENTIALS_FILE
+from config import bot
 from handlers import register_handlers
 from sheet.sheet_services import sync_memos_to_tracker
 import logging
@@ -9,7 +9,6 @@ import asyncio
 logging.basicConfig(level=logging.INFO)
 
 # Bot & Dispatcher
-bot = Bot(token=TELEGRAM_BOT_TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot)
 
 # Register all handlers
