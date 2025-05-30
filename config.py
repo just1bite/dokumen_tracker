@@ -9,4 +9,4 @@ SHEET_ID = os.getenv("SHEET_ID")
 SHEET_NAME = os.getenv("SHEET_NAME")
 CREDENTIALS_FILE = os.getenv("CREDENTIALS_FILE")
 
-bot = Bot(token=TELEGRAM_BOT_TOKEN, parse_mode=types.ParseMode.HTML)
+

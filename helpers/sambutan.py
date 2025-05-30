@@ -1,5 +1,4 @@
 from telebot.types import Message
-from config import bot
 from .markdown_util import escape_markdown_v2
 
 def kirim_sambutan(message: Message):
