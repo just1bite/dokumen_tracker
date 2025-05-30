@@ -1,12 +1,18 @@
 from aiogram import types, Dispatcher
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from sheet.sheet_services import get_pending_documents, update_document_status
+from datetime import datetime
 
 # Simpan state sederhana sementara (untuk produksi sebaiknya pakai FSM)
 user_state = {}
 
 async def update_command_handler(message: types.Message):
-    pending_docs = get_pending_documents()
+    all_docs = get_pending_documents()
+
+    pending_docs = [
+        doc for doc in all_docs
+        if str(doc["No Document"]).strip()[:4].isdigit() and int(doc["No Document"][:4]) >= 2025
+    ]
     
     if not pending_docs:
         await message.reply("✅ Semua dokumen telah diproses.")
