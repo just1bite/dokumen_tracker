@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-from aiogram import Bot, types  # tambahkan ini
 
 load_dotenv()
 
