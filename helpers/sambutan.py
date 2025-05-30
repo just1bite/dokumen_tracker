@@ -1,14 +1,11 @@
-from telebot.types import Message
-from .markdown_util import escape_markdown_v2
-
-def kirim_sambutan(message: Message):
+async def kirim_sambutan(message: types.Message):
     text = (
-        "👋 *Selamat datang di document_tracker Bot!*\n\n"
-        "Bot ini digunakan untuk melakukan update progres approval dokumen & traking document.\n\n"
-        "*Perintah yang tersedia:*\n"
-        "📌 /list — untuk melihat daftar dokumen\n"
-        "📌 /list keyword — untuk mencari didaftar dokumen\n"
-        "📌 /update — untuk update data approval dokumen\n"
-        "Jika ingin melakukan update untuk pertama kali, silahkan gunakan perintah /chat_id kirim chat_id ke admin terima kasih!"
+        "👋 <b>Selamat datang di Document Tracker Bot!</b>\n\n"
+        "Bot ini digunakan untuk tracking dan approval dokumen.\n\n"
+        "<b>Perintah:</b>\n"
+        "📌 /list — melihat daftar dokumen\n"
+        "📌 /update — update approval dokumen\n"
+        "📌 /list keyword — cari dokumen\n"
+        "📌 /start — sambutan ini\n\n"
     )
-    bot.send_message(message.chat.id, escape_markdown_v2(text), parse_mode="MarkdownV2")
+    await message.answer(text, parse_mode="HTML")
