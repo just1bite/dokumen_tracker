@@ -40,36 +40,12 @@ def build_keyboard(data, page, filter_name):
 
     return keyboard
 
-async def list_command_handler(message: types.Message):
-    args = message.get_args().strip().lower()
-    if args not in ["pending", "done"]:
-        args = "all"
+async def send_page(message_or_callback, data, page, filter_name="all"):
+    start = page * ITEMS_PER_PAGE
+    end = start + ITEMS_PER_PAGE
+    page_data = data[start:end]
 
-    data = get_all_tracker_data()
-    filtered_data = filter_data(data, args)
-
-    if not filtered_data:
-        await message.reply("❌ Tidak ada dokumen yang sesuai filter.")
-        return
-
-    keyboard = build_keyboard(filtered_data, 0, args)
-    title_map = {
-        "all": "📋 Daftar *semua dokumen*:",
-        "pending": "📋 Daftar dokumen *belum selesai*:",
-        "done": "📋 Daftar dokumen *selesai*:",
-    }
-    title = title_map.get(args, "📋 Daftar dokumen:")
-
-    await message.reply(title, reply_markup=keyboard, parse_mode="Markdown")
-
-async def list_page_callback(callback: types.CallbackQuery):
-    _, page_str, filter_name = callback.data.split("|")
-    page = int(page_str)
-
-    data = get_all_tracker_data()
-    filtered_data = filter_data(data, filter_name)
-
-    keyboard = build_keyboard(filtered_data, page, filter_name)
+    keyboard = build_keyboard(data, page, filter_name)
 
     title_map = {
         "all": "📋 Daftar *semua dokumen*:",
@@ -78,10 +54,35 @@ async def list_page_callback(callback: types.CallbackQuery):
     }
     title = title_map.get(filter_name, "📋 Daftar dokumen:")
 
-    await callback.message.edit_text(title, reply_markup=keyboard, parse_mode="Markdown")
+    if isinstance(message_or_callback, types.Message):
+        await message_or_callback.reply(title, reply_markup=keyboard, parse_mode="Markdown")
+    else:
+        await message_or_callback.message.edit_text(title, reply_markup=keyboard, parse_mode="Markdown")
+
+async def list_command_handler(message: types.Message):
+    args = message.get_args().strip().lower()
+    data = get_all_tracker_data()
+
+    # Filter berdasarkan args
+    if args and args not in ["pending", "done"]:
+        data = [row for row in data if args in row["Nama Document"].lower()]
+        filter_name = "all"
+    else:
+        data = filter_data(data, args if args else "all")
+        filter_name = args if args else "all"
+
+    await send_page(message, data, 0, filter_name)
+
+async def list_page_callback(callback: types.CallbackQuery):
+    _, page_str, filter_name = callback.data.split("|")
+    page = int(page_str)
+
+    data = get_all_tracker_data()
+    filtered_data = filter_data(data, filter_name)
+
+    await send_page(callback, filtered_data, page, filter_name)
     await callback.answer()  # supaya loading di button hilang
 
-# callback untuk detail_doc tetap sama seperti sebelumnya, tinggal daftar di register_handlers
 async def document_detail_callback(callback: types.CallbackQuery):
     _, doc_id = callback.data.split("|")
     data = get_all_tracker_data()
