@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+from aiogram import Bot, types  # tambahkan ini
+
 load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
