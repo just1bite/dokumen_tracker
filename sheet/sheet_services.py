@@ -2,6 +2,7 @@ import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+from .google_sheets import get_all_memo_data, get_all_tracker_data, append_to_tracker
 
 # Inisialisasi koneksi Google Sheet
 def get_sheet(sheet_name):
@@ -33,25 +34,25 @@ def append_to_tracker(rows):
     ws.append_rows(rows, value_input_option="USER_ENTERED")
 
 # Sinkronisasi Memo → Tracker
-def sync_memo_to_tracker():
-    memo_data = get_all_memo_data()  # ambil semua data dari Sheet Memo
+def sync_memos_to_tracker():
+    memo_data = get_all_memo_data()
+    tracker_data = get_all_tracker_data()
 
-    tracker_data = get_all_tracker_data()  # ambil semua data dari Tracker untuk pengecekan duplikat
-    existing_numbers = {row["No Document"] for row in tracker_data}
+    existing_docs = {row['No Document'] for row in tracker_data}
 
-    new_entries = []
+    new_docs = []
     for row in memo_data:
-        nomor = row["Nomor"]
-        if nomor not in existing_numbers and nomor.strip().endswith("/2025"):
-            new_entries.append({
+        nomor = row['Nomor'].strip()
+        if nomor not in existing_docs and re.match(r".*/2025$", nomor):
+            new_docs.append({
                 "No Document": nomor,
-                "Nama Document": row["Deskripsi"],
+                "Nama Document": row['Deskripsi'],
                 "Status": "",
                 "Note": ""
             })
 
-    if new_entries:
-        append_to_tracker(new_entries)
+    if new_docs:
+        append_to_tracker(new_docs)
 
 
 def get_pending_documents():
