@@ -30,3 +30,12 @@ def get_all_tracker_data():
 def append_to_tracker(rows):
     ws = get_sheet("Tracker")
     ws.append_rows(rows, value_input_option="USER_ENTERED")
+
+def update_row(row_number, data_dict):
+    sheet = get_sheet()
+    headers = sheet.row_values(1)
+
+    for key, value in data_dict.items():
+        if key in headers:
+            col_number = headers.index(key) + 1
+            sheet.update_cell(row_number, col_number, value)

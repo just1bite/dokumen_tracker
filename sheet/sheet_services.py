@@ -1,6 +1,6 @@
 import re
-from datetime import datetime
-from sheet.sheet_google import get_sheet, get_all_memo_data, get_all_tracker_data, append_to_tracker
+from datetime import datetime, timedelta
+from sheet.sheet_google import get_sheet, get_all_memo_data, get_all_tracker_data, append_to_tracker, update_row
 
 # Sinkronisasi Memo → Tracker
 def sync_memos_to_tracker():
@@ -64,3 +64,28 @@ def get_document_by_id(doc_id):
         if row.get("No Document", "").strip() == doc_id.strip():
             return row
     return None
+
+def auto_complete_documents():
+    data =  get_all_tracker_data()
+
+    for index, row in enumerate(data):
+        status = row.get("Status", "").strip().lower()
+        last_updated_str = row.get("Last Updated", "").strip()
+
+        # Lewatkan jika bukan akunting atau tidak ada tanggal
+        if status != "akunting" or not last_updated_str:
+            continue
+
+        try:
+            last_updated = datetime.strptime(last_updated_str, "%Y-%m-%d")
+        except ValueError:
+            continue  # Lewatkan jika format salah
+
+        if datetime.now() - last_updated >= timedelta(days=14):
+            # Update status jadi done by system
+            update_row(index + 2, {
+                "Status": "done",
+                "Note": "✅ Auto done by system after 14 days",
+                "Last Updated": datetime.now().strftime("%Y-%m-%d"),
+                "History": f"{row.get('History', '')}\nAuto updated on {datetime.now().strftime('%Y-%m-%d')} by system"
+            })
