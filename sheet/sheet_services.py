@@ -89,3 +89,14 @@ def auto_complete_documents():
                 "Last Updated": datetime.now().strftime("%Y-%m-%d"),
                 "History": f"{row.get('History', '')}\nAuto updated on {datetime.now().strftime('%Y-%m-%d')} by system"
             })
+def add_document_to_tracker(doc: dict):
+    print(f"Menambahkan dokumen ke tracker: {doc}")
+    sheet = get_sheet("Tracker")
+    sheet.append_row([
+        doc.get("No Document", ""),
+        doc.get("Nama Document", ""),
+        doc.get("Status", ""),
+        doc.get("Note", ""),
+        doc.get("Last Updated", ""),
+        doc.get("History", "")
+    ], value_input_option="USER_ENTERED")

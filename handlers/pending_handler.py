@@ -82,8 +82,6 @@ async def select_document_callback(callback: types.CallbackQuery):
     )
 
 
-
-
 async def select_status_callback(callback: types.CallbackQuery):
     _, status = callback.data.split("|")
     uid = callback.from_user.id
