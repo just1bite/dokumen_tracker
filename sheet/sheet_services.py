@@ -92,11 +92,8 @@ def auto_complete_documents():
 def add_document_to_tracker(doc: dict):
     print(f"Menambahkan dokumen ke tracker: {doc}")
     sheet = get_sheet("Tracker")
-    sheet.append_row([
-        doc.get("No Document", ""),
-        doc.get("Nama Document", ""),
-        doc.get("Status", ""),
-        doc.get("Note", ""),
-        doc.get("Last Updated", ""),
-        doc.get("History", "")
-    ], value_input_option="USER_ENTERED")
+
+    headers = sheet.row_values(1)
+    row_data = [doc.get(header, "") for header in headers]
+
+    sheet.append_row(row_data, value_input_option="USER_ENTERED")

@@ -39,3 +39,17 @@ def update_row(row_number, data_dict):
         if key in headers:
             col_number = headers.index(key) + 1
             sheet.update_cell(row_number, col_number, value)
+
+def add_row(data_dict, sheet_name="Tracker"):
+    sheet = get_sheet(sheet_name)
+
+    # Ambil header baris pertama
+    headers = sheet.row_values(1)
+
+    # Siapkan list data yang posisinya sesuai header
+    row_data = []
+    for header in headers:
+        row_data.append(data_dict.get(header, ""))  # jika key tidak ada, isi kosong
+
+    # Tambahkan row_data ke sheet
+    sheet.append_row(row_data, value_input_option="USER_ENTERED")
