@@ -90,10 +90,15 @@ def auto_complete_documents():
                 "History": f"{row.get('History', '')}\nAuto updated on {datetime.now().strftime('%Y-%m-%d')} by system"
             })
 def add_document_to_tracker(doc: dict):
-    print(f"Menambahkan dokumen ke tracker: {doc}")
-    sheet = get_sheet("Tracker")
+    try:
+        print(f"Menambahkan dokumen ke tracker: {doc}")
+        sheet = get_sheet("Tracker")
 
-    headers = sheet.row_values(1)
-    row_data = [doc.get(header, "") for header in headers]
+        headers = sheet.row_values(1)
+        row_data = [doc.get(header, "") for header in headers]
 
-    sheet.append_row(row_data, value_input_option="USER_ENTERED")
+        print("Row yang akan ditambahkan:", row_data)
+        sheet.append_row(row_data, value_input_option="USER_ENTERED")
+        print("Baris sudah ditambahkan ke sheet")
+    except Exception as e:
+        print("Gagal menambahkan dokumen:", e)
